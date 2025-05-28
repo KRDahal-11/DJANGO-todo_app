@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My To-Do List</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        .todo-container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+        .done {
+            text-decoration: line-through;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="todo-container">
+        <h2>📝 My To-Do List</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="task" placeholder="New task..." required>
+            <button type="submit">Add</button>
+        </form>
+
+        <ul>
+            {% for todo in todos %}
+                <li class="todo-item">
+                    <span class="{% if todo.completed %}done{% endif %}">{{ todo.task }}</span>
+                    <form method="post" action="{% url 'toggle_todo' todo.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">
+                            {% if todo.completed %}Undo{% else %}Done{% endif %}
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'delete_todo' todo.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="color: red;">Delete</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li>No tasks yet!</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
