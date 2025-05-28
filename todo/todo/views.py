@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from todo import models
 from todo.models import TODOO
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login as auth_login
+
+
 def signup(request):
     if request.method == 'POST':
         user=request.POST.get('username')
@@ -27,7 +30,18 @@ def signup(request):
             return render(request, 'signup.html', {'error': 'An error occurred while creating the account'})
     else:
         return render(request, 'signup.html')
+    
 
 def login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            auth_login(request, user)
+            return redirect('/todo')  # Redirect to the todo page or any other page
+        else:
+            return render(request, 'login.html', {'error': 'Invalid username or password'})
     return render(request, 'login.html')
                  
