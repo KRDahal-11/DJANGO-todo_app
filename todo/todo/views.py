@@ -46,5 +46,13 @@ def login(request):
     return render(request, 'login.html')
 
 def todo(request):
-    return render(request, 'todo.html')
+    if not request.user.is_authenticated:
+        return redirect('/login')
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        if title:
+            TODOO.objects.create(title=title, user=request.user)
+            return redirect('/todo')
+    todos = TODOO.objects.filter(user=request.user).order_by('-date')
+    return render(request, 'todo.html', {'todos': todos})
                  

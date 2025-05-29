@@ -7,5 +7,5 @@ class TODOO(models.Model):
     date=models.DateTimeField(auto_now_add=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     
-    def _str_(self):
+    def __str__(self):
         return self.title
