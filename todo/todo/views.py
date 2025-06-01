@@ -4,6 +4,8 @@ from todo import models
 from todo.models import TODOO
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login as auth_login
+from django.shortcuts import get_object_or_404
+
 
 
 def signup(request):
@@ -45,14 +47,42 @@ def login(request):
             return render(request, 'login.html', {'error': 'Invalid username or password'})
     return render(request, 'login.html')
 
+# def todo(request):
+#     if not request.user.is_authenticated:
+#         return redirect('/login')
+#     if request.method == 'POST':
+#         title = request.POST.get('title')
+#         if title:
+#             TODOO.objects.create(title=title, user=request.user)
+#             return redirect('/todo')
+#     todos = TODOO.objects.filter(user=request.user).order_by('-date')
+#     return render(request, 'todo.html', {'todos': todos})
+
 def todo(request):
     if not request.user.is_authenticated:
         return redirect('/login')
     if request.method == 'POST':
-        title = request.POST.get('title')
-        if title:
-            TODOO.objects.create(title=title, user=request.user)
-            return redirect('/todo')
+        action = request.POST.get('action')
+        todo_id = request.POST.get('todo_id')
+        if action == 'edit' and todo_id:
+            new_title = request.POST.get('new_title')
+            todo_item = get_object_or_404(TODOO, id=todo_id, user=request.user)
+            if new_title:
+                todo_item.title = new_title
+                todo_item.save()
+        elif action == 'delete' and todo_id:
+            todo_item = get_object_or_404(TODOO, id=todo_id, user=request.user)
+            todo_item.delete()
+        else:
+            # Add new todo
+            title = request.POST.get('title')
+            if title:
+                TODOO.objects.create(title=title, user=request.user)
+        return redirect('/todo')
     todos = TODOO.objects.filter(user=request.user).order_by('-date')
     return render(request, 'todo.html', {'todos': todos})
+
+
+
+
                  
